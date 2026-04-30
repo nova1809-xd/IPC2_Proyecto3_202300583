@@ -1,0 +1,37 @@
+@page
+@model FrontendWeb.Pages.CargarTransaccionesModel
+@{
+    ViewData["Title"] = "Cargar transacciones";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h1 class="h4 mb-0">cargar transacciones</h1>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">sube el archivo <strong>transac.xml</strong> para enviarlo a la api.</p>
+
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label asp-for="ArchivoTransacciones" class="form-label">archivo xml</label>
+                            <input asp-for="ArchivoTransacciones" type="file" class="form-control" accept=".xml,text/xml,application/xml" />
+                            <span asp-validation-for="ArchivoTransacciones" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">enviar transacciones</button>
+                    </form>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.RespuestaXml))
+                    {
+                        <hr />
+                        <h2 class="h5">respuesta de la api</h2>
+                        <pre class="bg-light border rounded p-3 mb-0">@Model.RespuestaXml</pre>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

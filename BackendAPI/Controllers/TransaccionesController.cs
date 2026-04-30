@@ -115,7 +115,8 @@ namespace BackendAPI.Controllers
         /// se mantiene así según los requisitos del proyecto.
         /// </summary>
         /// <returns>mensaje confirmando que los datos fueron eliminados</returns>
-        [HttpPost("limipiarDatos")]
+        [HttpPost("/limpiarDatos")]
+        [HttpPost("/limipiarDatos")]
         public IActionResult LimpiarDatos()
         {
             try

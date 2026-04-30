@@ -1,7 +1,17 @@
+using FrontendWeb.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// inyecta un httpclient configurado para llamar a la api local.
+// el baseaddress sale de appsettings para no dejar la url regada por el código.
+builder.Services.AddHttpClient<ApiService>(client =>
+{
+    var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7043/";
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 var app = builder.Build();
 
