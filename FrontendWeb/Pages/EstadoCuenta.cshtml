@@ -38,7 +38,14 @@
                                     <div class="card-header app-subcard-header">
                                         <h2 class="h5 mb-0">cliente: @cliente.Nombre</h2>
                                         <p class="mb-0 small">nit: @cliente.NIT</p>
-                                        <p class="mb-0 small">saldo actual: Q. @cliente.Saldo</p>
+                                        @if (cliente.Saldo < 0)
+                                        {
+                                            <p class="mb-0 small">saldo a favor: Q. @Math.Abs(cliente.Saldo)</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="mb-0 small">saldo actual: Q. @cliente.Saldo</p>
+                                        }
                                     </div>
                                     <div class="card-body">
                                         <table class="table table-striped mb-0">
