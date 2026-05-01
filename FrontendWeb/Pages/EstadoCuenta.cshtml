@@ -1,0 +1,107 @@
+@page
+@model FrontendWeb.Pages.EstadoCuentaModel
+@{
+    ViewData["Title"] = "Estado de Cuenta";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h4 mb-0">estado de cuenta</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">NIT del cliente, opcional</label>
+                                <input asp-for="NIT" class="form-control" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary">consultar</button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button id="downloadPdf" type="button" class="btn btn-outline-secondary">Descargar PDF</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    @if (Model.Clientes != null && Model.Clientes.Any())
+                    {
+                        <hr />
+
+                        <div id="estadoCuentaDiv" class="mx-auto p-4 bg-dark rounded border border-secondary">
+                            @foreach (var cliente in Model.Clientes)
+                            {
+                                <div class="card mb-4 shadow-sm">
+                                    <div class="card-header app-subcard-header">
+                                        <h2 class="h5 mb-0">cliente: @cliente.Nombre</h2>
+                                        <p class="mb-0 small">nit: @cliente.NIT</p>
+                                        <p class="mb-0 small">saldo actual: Q. @cliente.Saldo</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Cargo</th>
+                                                    <th>Abono</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var t in cliente.Transacciones)
+                                                {
+                                                    <tr>
+                                                        <td>@t.Fecha.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                                        <td>
+                                                            @if (t.Tipo == "Factura")
+                                                            {
+                                                                <span>Q. @t.Valor (Fact. # @t.NumeroFactura)</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (t.Tipo == "Pago")
+                                                            {
+                                                                <span>Q. @t.Valor (@(!string.IsNullOrWhiteSpace(t.BancoNombre) ? t.BancoNombre : t.CodigoBanco.ToString()))</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.Mensaje))
+                    {
+                        <hr />
+                        <div class="alert alert-info">@Model.Mensaje</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // descarga del pdf
+        document.getElementById('downloadPdf')?.addEventListener('click', function () {
+            var elemento = document.getElementById('estadoCuentaDiv');
+            if (!elemento) return;
+            var opt = {
+                margin: 1,
+                filename: 'estado_cuenta.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(elemento).save();
+        });
+    </script>
+}

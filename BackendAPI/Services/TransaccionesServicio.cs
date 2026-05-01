@@ -57,14 +57,12 @@ namespace BackendAPI.Services
         {
             var facturasNuevas = new List<Models.Factura>();
 
-            // expresión regular que captura todas las etiquetas <Factura>...</Factura>
-            // <Factura>.*?</Factura> busca bloques de factura completos
-            // RegexOptions.Singleline permite que . incluya saltos de línea
-            System.Text.RegularExpressions.MatchCollection facturasMatches = 
+            // busca bloques de factura con saltos de línea y espacios.
+            System.Text.RegularExpressions.MatchCollection facturasMatches =
                 System.Text.RegularExpressions.Regex.Matches(
-                    xml, 
-                    @"<Factura>.*?</Factura>", 
-                    System.Text.RegularExpressions.RegexOptions.Singleline
+                    xml,
+                    @"<factura\s*>(.*?)</factura>",
+                    System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase
                 );
 
             // carga las facturas existentes de la base de datos
@@ -75,40 +73,35 @@ namespace BackendAPI.Services
             {
                 string facturaXml = match.Value;
 
-                // extrae el número de factura usando regex
-                // <NumeroFactura>(.*?)</NumeroFactura> captura todo lo que está entre esas etiquetas
-                // el contenido se accede con Groups[1]
-                System.Text.RegularExpressions.Match numeroMatch = 
-                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<NumeroFactura>(.*?)</NumeroFactura>");
+                // extrae el número de factura usando regex.
+                System.Text.RegularExpressions.Match numeroMatch =
+                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<numeroFactura\s*>(.*?)</numeroFactura>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!numeroMatch.Success) continue;
-                string numero = numeroMatch.Groups[1].Value.Trim();
+                string numero = ExtraerCoincidencia(numeroMatch.Groups[1].Value, @"[A-Za-z0-9]+(?:[\s\-]+[A-Za-z0-9]+)*");
 
-                // extrae el NIT del cliente usando regex
-                // <NITcliente>(.*?)</NITcliente> captura el identificador del cliente
-                System.Text.RegularExpressions.Match nitMatch = 
-                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<NITcliente>(.*?)</NITcliente>");
+                // extrae el nit del cliente usando regex.
+                System.Text.RegularExpressions.Match nitMatch =
+                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<NITcliente\s*>(.*?)</NITcliente>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!nitMatch.Success) continue;
-                string nit = nitMatch.Groups[1].Value.Trim();
+                string nit = ExtraerCoincidencia(nitMatch.Groups[1].Value, @"\d+-[0-9kK]");
 
-                // extrae la fecha usando regex
-                // <Fecha>(.*?)</Fecha> captura la fecha de emisión de la factura
-                // se intenta parsear a DateTime para validación
-                System.Text.RegularExpressions.Match fechaMatch = 
-                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<Fecha>(.*?)</Fecha>");
+                // extrae la fecha usando regex.
+                System.Text.RegularExpressions.Match fechaMatch =
+                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<fecha\s*>(.*?)</fecha>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
-                if (!fechaMatch.Success || !DateTime.TryParse(fechaMatch.Groups[1].Value.Trim(), out DateTime fecha))
+                string fechaTexto = fechaMatch.Success ? ExtraerCoincidencia(fechaMatch.Groups[1].Value, @"\d{2}/\d{2}/\d{4}") : string.Empty;
+
+                if (string.IsNullOrEmpty(fechaTexto) || !DateTime.TryParse(fechaTexto, out DateTime fecha))
                 {
                     resumen.FacturasConError++;
                     continue;
                 }
 
-                // extrae el valor de la factura usando regex
-                // <Valor>(.*?)</Valor> captura el monto monetario
-                // se intenta parsear a decimal para asegurar que sea un número válido
-                System.Text.RegularExpressions.Match valorMatch = 
-                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<Valor>(.*?)</Valor>");
+                // extrae el valor de la factura usando regex.
+                System.Text.RegularExpressions.Match valorMatch =
+                    System.Text.RegularExpressions.Regex.Match(facturaXml, @"<valor\s*>(.*?)</valor>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!valorMatch.Success || !decimal.TryParse(valorMatch.Groups[1].Value.Trim(), out decimal valor))
                 {
@@ -144,13 +137,12 @@ namespace BackendAPI.Services
         {
             var pagosNuevos = new List<Models.Pago>();
 
-            // expresión regular que captura todas las etiquetas <Pago>...</Pago>
-            // <Pago>.*?</Pago> busca bloques completos de pago
-            System.Text.RegularExpressions.MatchCollection pagosMatches = 
+            // busca bloques de pago con saltos de línea y espacios.
+            System.Text.RegularExpressions.MatchCollection pagosMatches =
                 System.Text.RegularExpressions.Regex.Matches(
-                    xml, 
-                    @"<Pago>.*?</Pago>", 
-                    System.Text.RegularExpressions.RegexOptions.Singleline
+                    xml,
+                    @"<pago\s*>(.*?)</pago>",
+                    System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase
                 );
 
             // carga los pagos existentes de la base de datos
@@ -161,46 +153,44 @@ namespace BackendAPI.Services
             {
                 string pagoXml = match.Value;
 
-                // extrae el código del banco usando regex
-                // <CodigoBanco>(.*?)</CodigoBanco> captura el identificador del banco
-                // se valida que sea un número entero
-                System.Text.RegularExpressions.Match codigoMatch = 
-                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<CodigoBanco>(.*?)</CodigoBanco>");
+                // extrae el código del banco usando regex.
+                System.Text.RegularExpressions.Match codigoMatch =
+                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<codigoBanco\s*>(.*?)</codigoBanco>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
-                if (!codigoMatch.Success || !int.TryParse(codigoMatch.Groups[1].Value.Trim(), out int codigoBanco))
+                string codigoTexto = codigoMatch.Success ? ExtraerCoincidencia(codigoMatch.Groups[1].Value, @"\d+") : string.Empty;
+
+                if (string.IsNullOrEmpty(codigoTexto) || !int.TryParse(codigoTexto, out int codigoBanco))
                 {
                     resumen.PagosConError++;
                     continue;
                 }
 
-                // extrae la fecha del pago usando regex
-                // <Fecha>(.*?)</Fecha> captura cuándo se realizó la transacción
-                System.Text.RegularExpressions.Match fechaMatch = 
-                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<Fecha>(.*?)</Fecha>");
+                // extrae la fecha del pago usando regex.
+                System.Text.RegularExpressions.Match fechaMatch =
+                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<fecha\s*>(.*?)</fecha>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
-                if (!fechaMatch.Success || !DateTime.TryParse(fechaMatch.Groups[1].Value.Trim(), out DateTime fecha))
+                string fechaTexto = fechaMatch.Success ? ExtraerCoincidencia(fechaMatch.Groups[1].Value, @"\d{2}/\d{2}/\d{4}") : string.Empty;
+
+                if (string.IsNullOrEmpty(fechaTexto) || !DateTime.TryParse(fechaTexto, out DateTime fecha))
                 {
                     resumen.PagosConError++;
                     continue;
                 }
 
-                // extrae el NIT del cliente usando regex
-                // <NITcliente>(.*?)</NITcliente> captura a quién pertenece el pago
-                System.Text.RegularExpressions.Match nitMatch = 
-                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<NITcliente>(.*?)</NITcliente>");
+                // extrae el nit del cliente usando regex.
+                System.Text.RegularExpressions.Match nitMatch =
+                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<NITcliente\s*>(.*?)</NITcliente>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!nitMatch.Success) 
                 {
                     resumen.PagosConError++;
                     continue;
                 }
-                string nit = nitMatch.Groups[1].Value.Trim();
+                string nit = ExtraerCoincidencia(nitMatch.Groups[1].Value, @"\d+-[0-9kK]");
 
-                // extrae el valor del pago usando regex
-                // <Valor>(.*?)</Valor> captura el monto que se pagó
-                // se valida que sea un decimal válido
-                System.Text.RegularExpressions.Match valorMatch = 
-                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<Valor>(.*?)</Valor>");
+                // extrae el valor del pago usando regex.
+                System.Text.RegularExpressions.Match valorMatch =
+                    System.Text.RegularExpressions.Regex.Match(pagoXml, @"<valor\s*>(.*?)</valor>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!valorMatch.Success || !decimal.TryParse(valorMatch.Groups[1].Value.Trim(), out decimal valor))
                 {
@@ -281,40 +271,31 @@ namespace BackendAPI.Services
         /// </summary>
         private string GenerarXmlRespuesta(ResumenTransacciones resumen)
         {
-            string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-            xml += "<respuesta>\n";
+            string xml = "<?xml version=\"1.0\"?>\n";
+            xml += "<transacciones>\n";
             xml += "  <facturas>\n";
-            xml += $"    <creadas>{resumen.FacturasCreadas}</creadas>\n";
-            xml += $"    <duplicadas>{resumen.FacturasDuplicadas}</duplicadas>\n";
-            xml += $"    <conError>{resumen.FacturasConError}</conError>\n";
+            xml += $"    <nuevasFacturas>{resumen.FacturasCreadas}</nuevasFacturas>\n";
+            xml += $"    <facturasDuplicadas>{resumen.FacturasDuplicadas}</facturasDuplicadas>\n";
+            xml += $"    <facturasConError>{resumen.FacturasConError}</facturasConError>\n";
             xml += "  </facturas>\n";
             xml += "  <pagos>\n";
-            xml += $"    <creados>{resumen.PagosCreados}</creados>\n";
-            xml += $"    <duplicados>{resumen.PagosDuplicados}</duplicados>\n";
-            xml += $"    <conError>{resumen.PagosConError}</conError>\n";
+            xml += $"    <nuevosPagos>{resumen.PagosCreados}</nuevosPagos>\n";
+            xml += $"    <pagosDuplicados>{resumen.PagosDuplicados}</pagosDuplicados>\n";
+            xml += $"    <pagosConError>{resumen.PagosConError}</pagosConError>\n";
             xml += "  </pagos>\n";
-
-            if (resumen.SaldosAFavor.Count > 0)
-            {
-                xml += "  <saldosAFavor>\n";
-                foreach (var saldo in resumen.SaldosAFavor)
-                {
-                    xml += $"    <saldo>\n";
-                    xml += $"      <nit>{System.Web.HttpUtility.HtmlEncode(saldo.NIT)}</nit>\n";
-                    xml += $"      <monto>{saldo.Monto}</monto>\n";
-                    xml += $"    </saldo>\n";
-                }
-                xml += "  </saldosAFavor>\n";
-            }
-
-            if (!string.IsNullOrEmpty(resumen.Error))
-            {
-                xml += $"  <error>{System.Web.HttpUtility.HtmlEncode(resumen.Error)}</error>\n";
-            }
-
-            xml += "</respuesta>";
+            xml += "</transacciones>";
 
             return xml;
+        }
+
+        private static string ExtraerCoincidencia(string texto, string patron)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                texto,
+                patron,
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            return match.Success ? match.Value.Trim() : string.Empty;
         }
     }
 

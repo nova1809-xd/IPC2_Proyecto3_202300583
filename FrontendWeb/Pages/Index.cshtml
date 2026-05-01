@@ -4,7 +4,72 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+    <div class="hero-panel p-4 p-lg-5 text-center mb-4">
+        <p class="hero-kicker mb-2">sistema de pagos y facturación</p>
+        <h1 class="hero-title display-5 fw-semibold mb-3">bienvenido a itgsa</h1>
+        <p class="hero-subtitle lead mb-0">elige un módulo para cargar, consultar o revisar la información del sistema.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+            <a asp-page="/CargarConfiguracion" class="module-card card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="h5 card-title text-white mb-2">cargar configuración</h2>
+                        <p class="card-text text-secondary mb-0">sube clientes y bancos desde el xml de configuración.</p>
+                    </div>
+                    <span class="mt-4 btn btn-sm btn-outline-light align-self-start">abrir módulo</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a asp-page="/CargarTransacciones" class="module-card card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="h5 card-title text-white mb-2">cargar transacciones</h2>
+                        <p class="card-text text-secondary mb-0">envía facturas y pagos para procesarlos en la api.</p>
+                    </div>
+                    <span class="mt-4 btn btn-sm btn-outline-light align-self-start">abrir módulo</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <a asp-page="/EstadoCuenta" class="module-card card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="h5 card-title text-white mb-2">estado de cuenta</h2>
+                        <p class="card-text text-secondary mb-0">consulta un cliente o todos los clientes registrados.</p>
+                    </div>
+                    <span class="mt-4 btn btn-sm btn-outline-light align-self-start">abrir módulo</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-6">
+            <a asp-page="/ConsultarIngresos" class="module-card card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="h5 card-title text-white mb-2">consultar ingresos</h2>
+                        <p class="card-text text-secondary mb-0">visualiza la gráfica de pagos por banco en los últimos meses.</p>
+                    </div>
+                    <span class="mt-4 btn btn-sm btn-outline-light align-self-start">abrir módulo</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg-6">
+            <a asp-page="/Ayuda" class="module-card card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="h5 card-title text-white mb-2">ayuda</h2>
+                        <p class="card-text text-secondary mb-0">revisa la información del estudiante y la documentación del programa.</p>
+                    </div>
+                    <span class="mt-4 btn btn-sm btn-outline-light align-self-start">abrir módulo</span>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<transacciones>
+    <facturas>
+        <factura>
+            <numeroFactura> Factura No. 001-A </numeroFactura>
+            <NITcliente> NIT 123456-7 </NITcliente>
+            <fecha> Emitida el 15/02/2026 en zona 1 </fecha>
+            <valor> 1000.00 </valor>
+        </factura>
+        <factura>
+            <numeroFactura> F-002 (Almacen) </numeroFactura>
+            <NITcliente> 399399-K verificado </NITcliente>
+            <fecha> 10/03/2026 </fecha>
+            <valor> 2000.00 </valor>
+        </factura>
+        <factura>
+            <numeroFactura> Doc_003 </numeroFactura>
+            <NITcliente> Cobro a 987654-3 </NITcliente>
+            <fecha> Guatemala 05/04/2026 </fecha>
+            <valor> 500.00 </valor>
+        </factura>
+        <factura>
+            <numeroFactura> Factura 004 </numeroFactura>
+            <NITcliente> 123456-7 </NITcliente>
+            <fecha> 20/04/2026 en caja </fecha>
+            <valor> 300.00 </valor>
+        </factura>
+        <!-- Factura con error intencional (valor invalido) -->
+        <factura>
+            <numeroFactura> F-ERR </numeroFactura>
+            <NITcliente> 123456-7 </NITcliente>
+            <fecha> 25/04/2026 </fecha>
+            <valor> Q. 100.00 </valor>
+        </factura>
+    </facturas>
+    <pagos>
+        <pago>
+            <codigoBanco> Banco 1 </codigoBanco>
+            <fecha> Pagado el 20/02/2026 </fecha>
+            <NITcliente> 123456-7 </NITcliente>
+            <valor> 1000.00 </valor>
+        </pago>
+        <pago>
+            <codigoBanco> ID: 2 </codigoBanco>
+            <fecha> 15/03/2026 via web </fecha>
+            <NITcliente> 399399-K </NITcliente>
+            <valor> 2500.00 </valor>
+        </pago>
+        <pago>
+            <codigoBanco> Transferencia 3 </codigoBanco>
+            <fecha> 10/04/2026 </fecha>
+            <NITcliente> 987654-3 </NITcliente>
+            <valor> 200.00 </valor>
+        </pago>
+        <pago>
+            <codigoBanco> Banco 1 </codigoBanco>
+            <fecha> 25/04/2026 </fecha>
+            <NITcliente> 123456-7 </NITcliente>
+            <valor> 150.00 </valor>
+        </pago>
+        <!-- Pago con error intencional (banco no existe) -->
+        <pago>
+            <codigoBanco> Banco 99 (Inventado) </codigoBanco>
+            <fecha> 30/04/2026 </fecha>
+            <NITcliente> 123456-7 </NITcliente>
+            <valor> 500.00 </valor>
+        </pago>
+    </pagos>
+</transacciones>

@@ -1,0 +1,43 @@
+@page
+@{
+    ViewData["Title"] = "Ayuda";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h4 mb-0">ayuda</h1>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="ayudaTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="estudiante-tab" data-bs-toggle="tab" data-bs-target="#estudiante-pane" type="button" role="tab" aria-controls="estudiante-pane" aria-selected="true">información del estudiante</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="documentacion-tab" data-bs-toggle="tab" data-bs-target="#documentacion-pane" type="button" role="tab" aria-controls="documentacion-pane" aria-selected="false">documentación del programa</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content border border-top-0 p-4">
+                        <div class="tab-pane fade show active" id="estudiante-pane" role="tabpanel" aria-labelledby="estudiante-tab">
+                            <p class="mb-1">Nombre: Angel Sebastian Mazariegos Pérez</p>
+                            <p class="mb-1">Carné: 202300583</p>
+                            <p class="mb-0">Curso: IPC2 Sección D</p>
+                        </div>
+
+                        <div class="tab-pane fade" id="documentacion-pane" role="tabpanel" aria-labelledby="documentacion-tab">
+                            <div class="d-flex flex-column gap-3">
+                                <p class="mb-0">Descarga la documentación técnica final del proyecto en formato PDF.</p>
+                                <div>
+                                    <a class="btn btn-success" href="/Documentacion/Ensayo_Proyecto3_202300583.pdf" target="_blank" rel="noopener">Descargar documentación</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

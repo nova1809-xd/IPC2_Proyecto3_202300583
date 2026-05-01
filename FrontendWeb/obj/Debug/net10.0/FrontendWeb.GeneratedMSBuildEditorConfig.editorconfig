@@ -22,8 +22,28 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Ayuda.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXl1ZGEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/CargarConfiguracion.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FyZ2FyQ29uZmlndXJhY2lvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/CargarTransacciones.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FyZ2FyVHJhbnNhY2Npb25lcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/ConsultarIngresos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uc3VsdGFySW5ncmVzb3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/EstadoCuenta.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXN0YWRvQ3VlbnRhLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Index.cshtml]
@@ -32,6 +52,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Resetear.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVzZXRlYXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/angel/OneDrive/Documentos/GitHub/IPC2_Proyecto3_202300583/FrontendWeb/Pages/Shared/_ValidationScriptsPartial.cshtml]

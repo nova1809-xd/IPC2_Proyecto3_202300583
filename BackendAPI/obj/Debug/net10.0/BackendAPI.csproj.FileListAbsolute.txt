@@ -1,7 +1,6 @@
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\appsettings.Development.json
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\appsettings.json
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.staticwebassets.endpoints.json
-C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.exe
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.deps.json
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.runtimeconfig.json
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.dll
@@ -31,3 +30,5 @@ C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\ob
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\obj\Debug\net10.0\BackendAPI.pdb
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\obj\Debug\net10.0\BackendAPI.genruntimeconfig.cache
 C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\obj\Debug\net10.0\ref\BackendAPI.dll
+C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\obj\Debug\net10.0\BackendAPI.sourcelink.json
+C:\Users\angel\OneDrive\Documentos\GitHub\IPC2_Proyecto3_202300583\BackendAPI\bin\Debug\net10.0\BackendAPI.exe

@@ -12,7 +12,7 @@
                     <h1 class="h4 mb-0">cargar transacciones</h1>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-3">sube el archivo <strong>transac.xml</strong> para enviarlo a la api.</p>
+                    <p class="text-secondary mb-3">sube el archivo <strong>transac.xml</strong> para enviarlo a la api.</p>
 
                     <form method="post" enctype="multipart/form-data">
                         <div class="mb-3">
@@ -28,10 +28,32 @@
                     {
                         <hr />
                         <h2 class="h5">respuesta de la api</h2>
-                        <pre class="bg-light border rounded p-3 mb-0">@Model.RespuestaXml</pre>
+                        <pre id="respuestaTransacciones" class="bg-dark text-light border border-secondary rounded p-3 mb-0 xml-output">@Model.RespuestaXml</pre>
+                        <button type="button" class="btn btn-outline-secondary mt-2" onclick="descargarSalida('respuestaTransacciones')">Descargar salida.xml</button>
                     }
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // descarga el xml
+        function descargarSalida(idElemento) {
+            const elemento = document.getElementById(idElemento);
+            if (!elemento) return;
+
+            const blob = new Blob([elemento.textContent || ''], { type: 'text/xml' });
+            const url = window.URL.createObjectURL(blob);
+            const enlace = document.createElement('a');
+
+            enlace.href = url;
+            enlace.download = 'salida.xml';
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+}

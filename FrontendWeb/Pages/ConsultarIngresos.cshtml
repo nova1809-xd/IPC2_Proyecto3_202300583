@@ -1,0 +1,104 @@
+@page
+@model FrontendWeb.Pages.ConsultarIngresosModel
+@{
+    ViewData["Title"] = "Consultar Ingresos";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h4 mb-0">consultar ingresos</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">mes</label>
+                                <input asp-for="MesAnio" type="month" class="form-control" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary">consultar</button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button id="downloadPdf" type="button" class="btn btn-outline-secondary">Descargar PDF</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    @if (Model.Meses != null && Model.Bancos != null)
+                    {
+                        <hr />
+                        <div id="chartArea" class="mx-auto p-4 bg-white rounded border text-center">
+                            <div style="max-width: 800px; width: 100%; margin: 0 auto;">
+                                <canvas id="ingresosChart" width="800" height="300"></canvas>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Mensaje))
+                    {
+                        <hr />
+                        <div class="alert alert-info">@Model.Mensaje</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        // prepara datos para chart.js
+        @if (Model.Meses != null && Model.Bancos != null)
+        {
+            <text>
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Meses));
+            const rawBancos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Bancos));
+
+            function RandomColor() {
+                const r = Math.floor(Math.random() * 120) + 20;
+                const g = Math.floor(Math.random() * 120) + 20;
+                const b = Math.floor(Math.random() * 120) + 20;
+                return `rgba(${r}, ${g}, ${b}, 0.7)`;
+            }
+
+            const datasets = rawBancos.map(b => ({ label: b.Nombre, data: b.Totales, backgroundColor: RandomColor() }));
+
+            const ctx = document.getElementById('ingresosChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // botón para descargar el área del chart
+            document.getElementById('downloadPdf')?.addEventListener('click', function () {
+                var elemento = document.getElementById('chartArea');
+                if (!elemento) return;
+                var opt = {
+                    margin: 0.5,
+                    filename: 'grafica_ingresos.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+                };
+
+                html2pdf().set(opt).from(elemento).save();
+            });
+            </text>
+        }
+    </script>
+}

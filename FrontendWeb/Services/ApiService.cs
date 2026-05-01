@@ -54,5 +54,28 @@ namespace FrontendWeb.Services
             using var response = await _httpClient.PostAsync("limpiarDatos", null);
             return await response.Content.ReadAsStringAsync();
         }
+
+        /// <summary>
+        /// obtiene el estado de cuenta (transacciones) de un cliente por NIT.
+        /// </summary>
+        public async Task<string> GetEstadoCuentaAsync(string? nit)
+        {
+            var url = string.IsNullOrWhiteSpace(nit)
+                ? "api/Transacciones/devolverEstadoCuenta"
+                : $"api/Transacciones/devolverEstadoCuenta?NIT={Uri.EscapeDataString(nit)}";
+
+            using var response = await _httpClient.GetAsync(url);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        /// <summary>
+        /// obtiene el resumen de pagos agrupados por banco para un mes y año.
+        /// </summary>
+        public async Task<string> GetResumenPagosAsync(int mes, int anio)
+        {
+            var url = $"api/Transacciones/devolverResumenPagos?mes={mes}&anio={anio}";
+            using var response = await _httpClient.GetAsync(url);
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config>
+    <clientes>
+        <cliente>
+            <NIT> Cliente VIP: 123456-7 (Angel) </NIT>
+            <nombre>Angel Mazariegos</nombre>
+        </cliente>
+        <cliente>
+            <NIT> *** NIT 399399-K *** </NIT>
+            <nombre>Almacen Guatemalteco</nombre>
+        </cliente>
+        <cliente>
+            <NIT> 987654-3 registrado en sistema </NIT>
+            <nombre>Juan Perez</nombre>
+        </cliente>
+    </clientes>
+    <bancos>
+        <banco>
+            <codigo> Banco # 1 </codigo>
+            <nombre>Banco Industrial</nombre>
+        </banco>
+        <banco>
+            <codigo> Id_2_Banrural </codigo>
+            <nombre>BanRural</nombre>
+        </banco>
+        <banco>
+            <codigo> 3 (BAM) </codigo>
+            <nombre>BAM</nombre>
+        </banco>
+    </bancos>
+</config>

@@ -51,16 +51,12 @@ namespace BackendAPI.Services
         /// </summary>
         private void ProcesarClientes(string xml, ResumenConfiguracion resumen)
         {
-            // expresión regular que busca todas las etiquetas <Cliente>...</Cliente>
-            // <Cliente>.*?</Cliente> usa:
-            // - <Cliente> y </Cliente> como delimitadores literales
-            // - .*? para capturar cualquier contenido entre ellos (no-codicioso, se detiene en el primer </Cliente>)
-            // - RegexOptions.Singleline permite que . incluya saltos de línea (\n)
-            System.Text.RegularExpressions.MatchCollection clientesMatches = 
+            // busca bloques de cliente con saltos de línea y espacios.
+            System.Text.RegularExpressions.MatchCollection clientesMatches =
                 System.Text.RegularExpressions.Regex.Matches(
-                    xml, 
-                    @"<Cliente>.*?</Cliente>", 
-                    System.Text.RegularExpressions.RegexOptions.Singleline
+                    xml,
+                    @"<cliente\s*>(.*?)</cliente>",
+                    System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase
                 );
 
             // carga los clientes existentes de la base de datos
@@ -71,21 +67,16 @@ namespace BackendAPI.Services
             {
                 string clienteXml = match.Value;
 
-                // extrae el NIT del cliente usando regex
-                // <NIT>(.*?)</NIT> captura todo lo que aparece entre <NIT> y </NIT>
-                // el grupo de captura (.*?) se accede con Groups[1]
-                // Groups[0] sería el match completo incluyendo las etiquetas
-                System.Text.RegularExpressions.Match nitMatch = 
-                    System.Text.RegularExpressions.Regex.Match(clienteXml, @"<NIT>(.*?)</NIT>");
+                // extrae el nit del cliente usando regex.
+                System.Text.RegularExpressions.Match nitMatch =
+                    System.Text.RegularExpressions.Regex.Match(clienteXml, @"<NIT\s*>(.*?)</NIT>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!nitMatch.Success) continue;
-                string nit = nitMatch.Groups[1].Value.Trim();
+                string nit = ExtraerCoincidencia(nitMatch.Groups[1].Value, @"\d+-[0-9kK]");
 
-                // extrae el nombre del cliente usando regex
-                // <nombre>(.*?)</nombre> busca el contenido dentro de las etiquetas nombre
-                // tiene que ser exactamente con minúsculas según el formato esperado del XML
-                System.Text.RegularExpressions.Match nombreMatch = 
-                    System.Text.RegularExpressions.Regex.Match(clienteXml, @"<nombre>(.*?)</nombre>");
+                // extrae el nombre del cliente usando regex.
+                System.Text.RegularExpressions.Match nombreMatch =
+                    System.Text.RegularExpressions.Regex.Match(clienteXml, @"<nombre\s*>(.*?)</nombre>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!nombreMatch.Success) continue;
                 string nombre = nombreMatch.Groups[1].Value.Trim();
@@ -121,13 +112,12 @@ namespace BackendAPI.Services
         /// </summary>
         private void ProcesarBancos(string xml, ResumenConfiguracion resumen)
         {
-            // expresión regular que busca todas las etiquetas <Banco>...</Banco>
-            // similar a clientes, captura bloques completos de bancos
-            System.Text.RegularExpressions.MatchCollection bancosMatches = 
+            // busca bloques de banco con saltos de línea y espacios.
+            System.Text.RegularExpressions.MatchCollection bancosMatches =
                 System.Text.RegularExpressions.Regex.Matches(
-                    xml, 
-                    @"<Banco>.*?</Banco>", 
-                    System.Text.RegularExpressions.RegexOptions.Singleline
+                    xml,
+                    @"<banco\s*>(.*?)</banco>",
+                    System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase
                 );
 
             // carga los bancos existentes de la base de datos
@@ -138,19 +128,18 @@ namespace BackendAPI.Services
             {
                 string bancoXml = match.Value;
 
-                // extrae el código del banco usando regex
-                // <codigo>(.*?)</codigo> captura el número del banco
-                // se intenta parsear a int para validar que sea un número válido
-                System.Text.RegularExpressions.Match codigoMatch = 
-                    System.Text.RegularExpressions.Regex.Match(bancoXml, @"<codigo>(.*?)</codigo>");
+                // extrae el código del banco usando regex.
+                System.Text.RegularExpressions.Match codigoMatch =
+                    System.Text.RegularExpressions.Regex.Match(bancoXml, @"<codigo\s*>(.*?)</codigo>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
-                if (!codigoMatch.Success || !int.TryParse(codigoMatch.Groups[1].Value.Trim(), out int codigo))
+                string codigoTexto = codigoMatch.Success ? ExtraerCoincidencia(codigoMatch.Groups[1].Value, @"\d+") : string.Empty;
+
+                if (string.IsNullOrEmpty(codigoTexto) || !int.TryParse(codigoTexto, out int codigo))
                     continue;
 
-                // extrae el nombre del banco usando regex
-                // <nombre>(.*?)</nombre> captura el nombre o razón social del banco
-                System.Text.RegularExpressions.Match nombreMatch = 
-                    System.Text.RegularExpressions.Regex.Match(bancoXml, @"<nombre>(.*?)</nombre>");
+                // extrae el nombre del banco usando regex.
+                System.Text.RegularExpressions.Match nombreMatch =
+                    System.Text.RegularExpressions.Regex.Match(bancoXml, @"<nombre\s*>(.*?)</nombre>", System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 
                 if (!nombreMatch.Success) continue;
                 string nombre = nombreMatch.Groups[1].Value.Trim();
@@ -204,6 +193,16 @@ namespace BackendAPI.Services
             xml += "</respuesta>";
 
             return xml;
+        }
+
+        private static string ExtraerCoincidencia(string texto, string patron)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                texto,
+                patron,
+                System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            return match.Success ? match.Value.Trim() : string.Empty;
         }
     }
 

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BackendAPI.Services;
+using System.Globalization;
+using System.Linq;
 
 namespace BackendAPI.Controllers
 {
@@ -49,8 +51,15 @@ namespace BackendAPI.Controllers
         /// <param name="xmlConfiguracion">string con el contenido XML de configuración</param>
         /// <returns>string XML con el resumen de clientes creados/actualizados y bancos</returns>
         [HttpPost("grabarConfiguracion")]
-        public IActionResult GrabarConfiguracion([FromBody] string xmlConfiguracion)
+        public async Task<IActionResult> GrabarConfiguracion()
         {
+            string xmlConfiguracion;
+
+            using (var reader = new StreamReader(Request.Body))
+            {
+                xmlConfiguracion = await reader.ReadToEndAsync();
+            }
+
             // valida que el XML no sea nulo o vacío
             if (string.IsNullOrWhiteSpace(xmlConfiguracion))
             {
@@ -91,8 +100,15 @@ namespace BackendAPI.Controllers
         /// <param name="xmlTransacciones">string con el contenido XML de transacciones</param>
         /// <returns>string XML con el resumen de facturas, pagos, duplicados, errores y saldos a favor</returns>
         [HttpPost("grabarTransaccion")]
-        public IActionResult GrabarTransaccion([FromBody] string xmlTransacciones)
+        public async Task<IActionResult> GrabarTransaccion()
         {
+            string xmlTransacciones;
+
+            using (var reader = new StreamReader(Request.Body))
+            {
+                xmlTransacciones = await reader.ReadToEndAsync();
+            }
+
             // valida que el XML no sea nulo o vacío
             if (string.IsNullOrWhiteSpace(xmlTransacciones))
             {
@@ -166,11 +182,79 @@ namespace BackendAPI.Controllers
         /// </summary>
         /// <returns>código 200 OK</returns>
         [HttpGet("devolverEstadoCuenta")]
-        public IActionResult DevolverEstadoCuenta()
+        public IActionResult DevolverEstadoCuenta([FromQuery] string? NIT)
         {
-            // estructura base vacía por ahora
-            // aquí irá la lógica para generar el estado de cuenta de un cliente
-            return Ok("estado de cuenta - por implementar en futuro release");
+            try
+            {
+                var db = XmlDatabaseService.GetInstance();
+                var clientes = db.CargarClientes().OrderBy(c => c.NIT, StringComparer.OrdinalIgnoreCase).ToList();
+
+                if (!string.IsNullOrWhiteSpace(NIT))
+                {
+                    clientes = clientes
+                        .Where(c => string.Equals(c.NIT, NIT, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                var facturas = db.CargarFacturas();
+                var pagos = db.CargarPagos();
+                var bancos = db.CargarBancos().ToDictionary(b => b.Codigo, b => b.Nombre);
+
+                var estados = clientes
+                    .Select(cliente => ConstruirEstadoCuenta(cliente, facturas, pagos, bancos))
+                    .ToList();
+
+                return new JsonResult(new { clientes = estados });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"error: {ex.Message}");
+            }
+        }
+
+        private static EstadoCuentaClienteDto ConstruirEstadoCuenta(
+            Models.Cliente cliente,
+            List<Models.Factura> facturas,
+            List<Models.Pago> pagos,
+            Dictionary<int, string> bancos)
+        {
+            var facturasCliente = facturas.Where(f => string.Equals(f.NITcliente, cliente.NIT, StringComparison.OrdinalIgnoreCase)).ToList();
+            var pagosCliente = pagos.Where(p => string.Equals(p.NITcliente, cliente.NIT, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var transacciones = new List<EstadoCuentaTransaccionDto>();
+
+            foreach (var factura in facturasCliente)
+            {
+                transacciones.Add(new EstadoCuentaTransaccionDto
+                {
+                    Tipo = "Factura",
+                    NumeroFactura = factura.NumeroFactura,
+                    Fecha = factura.Fecha,
+                    Valor = factura.Valor
+                });
+            }
+
+            foreach (var pago in pagosCliente)
+            {
+                string nombreBanco = bancos.TryGetValue(pago.CodigoBanco, out var bancoNombre) ? bancoNombre : string.Empty;
+
+                transacciones.Add(new EstadoCuentaTransaccionDto
+                {
+                    Tipo = "Pago",
+                    CodigoBanco = pago.CodigoBanco,
+                    BancoNombre = nombreBanco,
+                    Fecha = pago.Fecha,
+                    Valor = pago.Valor
+                });
+            }
+
+            return new EstadoCuentaClienteDto
+            {
+                NIT = cliente.NIT,
+                Nombre = cliente.Nombre,
+                Saldo = facturasCliente.Sum(x => x.Valor) - pagosCliente.Sum(x => x.Valor),
+                Transacciones = transacciones.OrderByDescending(t => t.Fecha).ToList()
+            };
         }
 
         /// <summary>
@@ -183,11 +267,84 @@ namespace BackendAPI.Controllers
         /// </summary>
         /// <returns>código 200 OK</returns>
         [HttpGet("devolverResumenPagos")]
-        public IActionResult DevolverResumenPagos()
+        public IActionResult DevolverResumenPagos([FromQuery] int? mes, [FromQuery] int? anio)
         {
-            // estructura base vacía por ahora
-            // aquí irá la lógica para generar un resumen de pagos según criterios
-            return Ok("resumen de pagos - por implementar en futuro release");
+            if (!mes.HasValue || !anio.HasValue)
+            {
+                return BadRequest("se requieren los parámetros 'mes' y 'anio' en la query");
+            }
+
+            try
+            {
+                // construye la lista de meses: mes solicitado y los dos anteriores
+                var meses = new List<DateTime>();
+                var fechaBase = new DateTime(anio.Value, mes.Value, 1);
+                for (int i = 0; i < 3; i++)
+                {
+                    meses.Add(fechaBase.AddMonths(-i));
+                }
+
+                var db = XmlDatabaseService.GetInstance();
+                var pagos = db.CargarPagos();
+                var bancos = db.CargarBancos().ToDictionary(b => b.Codigo, b => b.Nombre);
+
+                // obtiene lista única de códigos de banco presentes en los pagos
+                var codigosBancos = pagos.Select(p => p.CodigoBanco).Distinct().ToList();
+
+                var bancosReporte = new List<object>();
+
+                foreach (var codigo in codigosBancos)
+                {
+                    var nombre = bancos.ContainsKey(codigo) ? bancos[codigo] : string.Empty;
+                    var totales = new List<decimal>();
+
+                    foreach (var m in meses)
+                    {
+                        decimal total = pagos.Where(p => p.CodigoBanco == codigo && p.Fecha.Year == m.Year && p.Fecha.Month == m.Month)
+                                             .Sum(p => p.Valor);
+                        totales.Add(total);
+                    }
+
+                    bancosReporte.Add(new
+                    {
+                        Codigo = codigo,
+                        Nombre = nombre,
+                        Totales = totales
+                    });
+                }
+
+                var etiquetas = meses.Select(d => d.ToString("yyyy-MM", CultureInfo.InvariantCulture)).ToList();
+
+                var resultado = new
+                {
+                    Meses = etiquetas,
+                    Bancos = bancosReporte
+                };
+
+                return new JsonResult(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"error: {ex.Message}");
+            }
         }
+    }
+
+    public class EstadoCuentaClienteDto
+    {
+        public string NIT { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Saldo { get; set; }
+        public List<EstadoCuentaTransaccionDto> Transacciones { get; set; } = new List<EstadoCuentaTransaccionDto>();
+    }
+
+    public class EstadoCuentaTransaccionDto
+    {
+        public string Tipo { get; set; } = string.Empty;
+        public string NumeroFactura { get; set; } = string.Empty;
+        public int CodigoBanco { get; set; }
+        public string BancoNombre { get; set; } = string.Empty;
+        public DateTime Fecha { get; set; }
+        public decimal Valor { get; set; }
     }
 }
